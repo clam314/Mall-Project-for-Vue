@@ -22,7 +22,7 @@
 
   .header {
     &.mine-navbar {
-      background-color: translucent;
+      background-color: transparent;
     }
 
     .iconfont {
