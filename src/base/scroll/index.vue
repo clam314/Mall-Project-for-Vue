@@ -1,6 +1,6 @@
 <!-- 组件说明 -->
 <template>
-  <swiper :options='swiperOption'>
+  <swiper :options='swiperOption' ref="mySwiper">
     <swiper-slide>
       <slot></slot>
     </swiper-slide>
@@ -24,6 +24,9 @@
       scrollbar: {
         type: Boolean,
         default: true
+      },
+      data: {
+        type: [Array, Object]
       }
     },
     data() {
@@ -40,19 +43,32 @@
         }
       };
     },
-    computed: {
+    watch: {
+      data() {
+        this.update();
+      }
+    },
+    mounted() {
+      console.log(this.$refs.mySwiper.swiper.height);
 
     },
     methods: {
-
-    },
+      update() {
+        console.log(this.data);
+        console.log(this.$refs.mySwiper.swiper.$wrapperEl.css('height'));
+        setTimeout(() => {
+          this.$refs.mySwiper && this.$refs.mySwiper.swiper.update();
+          console.log(this.$refs.mySwiper.swiper.$wrapperEl.css('height'));
+        }, 8000);
+      }
+    }
   }
 
 </script>
 
 <style lang='scss' scoped>
   .swiper-container {
-    overflow: hidden;
+    overflow: hidaden;
     width: 100%;
     height: 100%;
   }

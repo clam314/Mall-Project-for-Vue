@@ -1,7 +1,10 @@
 import axios from 'axios';
+import jsonp from 'assets/js/jsonp';
 import {
   SUCCESS_CODE,
-  TIMEOUT
+  TIMEOUT,
+  jsonpOptions,
+  HOME_RECOMMEND_PAGE_SIZE
 } from './config.js';
 
 export const getHomeSlider = () => {
@@ -21,11 +24,25 @@ export const getHomeSlider = () => {
       linkUrl: 'https://www.imooc.com',
       picUrl: require('assets/img/404.png')
     }]
-  }).then(data => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve(data);
-      }, 1000);
-    })
   });
 }
+
+export const getHomeRecommend = (page = 1, psize = HOME_RECOMMEND_PAGE_SIZE) => {
+  const url = 'https://ju.taobao.com/json/tg/ajaxGetItemsV2.json';
+  const params = {
+    page,
+    psize,
+    type: 0,
+    frontCatId: ''
+  };
+  return jsonp(url, params, jsonpOptions).then(res => {
+    if (res.code === '200') {
+      return res;
+    }
+    throw new Error('没有成功获取到数据！')
+  }).catch(err => {
+    if (err) {
+      console.log(err);
+    }
+  });
+};
