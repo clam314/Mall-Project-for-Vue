@@ -8,7 +8,7 @@ import fastclick from 'fastclick';
 import VueLazyload from 'vue-lazyload';
 
 import 'assets/scss/index.scss';
-require('swiper/dist/css/swiper.css');
+import 'swiper/dist/css/swiper.css';
 
 fastclick.attach(document.body);
 

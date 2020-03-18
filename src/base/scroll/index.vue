@@ -33,7 +33,7 @@
       return {
         swiperOption: {
           direction: 'vertical',
-          sliderPerView: 'auto',
+          slidesPerView: 'auto',
           freeMode: true,
           setWrapperSize: true,
           scrollbar: {
