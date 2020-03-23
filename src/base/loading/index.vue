@@ -4,8 +4,8 @@
     <span class="mine-loading-indicator" v-if="indicator === 'on'">
       <slot><img src="./loading.gif" alt="loading"></slot>
     </span>
-    <span class="mine-loading-text" v-if="text">
-      {{text}}
+    <span class="mine-loading-text" v-if="loadingText">
+      {{loadingText}}
     </span>
   </div>
 </template>
@@ -36,15 +36,22 @@
     },
     data() {
       return {
-
+        loadingText: this.text
       };
     },
     computed: {
 
     },
-    methods: {
-
+    watch: {
+      text(text) {
+        this.loadingText = text;
+      }
     },
+    methods: {
+      setLoadingText(text) {
+        this.loadingText = text;
+      }
+    }
   }
 
 </script>
