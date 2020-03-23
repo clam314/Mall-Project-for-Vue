@@ -8,7 +8,7 @@
     <ul class="recommend-list" v-if="recommends.length">
       <li class="recommend-item" v-for="(item,index) in recommends" :key=index>
         <router-link class="recommend-link" :to="{name:'home-product',params:{id:item.baseinfo.itemId}}">
-          <p class="recommend-pic"><img class="recommend-img" :src="item.baseinfo.picUrlNew"></p>
+          <p class="recommend-pic"><img class="recommend-img" v-lazy="item.baseinfo.picUrlNew"></p>
           <p class="recommend-name">{{item.name.shortName}}</p>
           <p class="recommend-origPrice"><del>¥{{item.price.origPrice}}</del></p>
           <p class="recommend-info">
@@ -40,14 +40,14 @@
       };
     },
     methods: {
-      updata() {
+      update() {
         return this.getRecommend();
       },
       getRecommend() {
         if (this.curPage > this.totalpage) {
           return Promise.reject(new Error('没有更多了'));
         }
-        getHomeRecommend(this.curPage).then(data => {
+        return getHomeRecommend(this.curPage).then(data => {
           return new Promise(resolve => {
             if (data) {
               this.curPage++;

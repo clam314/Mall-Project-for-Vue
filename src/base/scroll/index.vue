@@ -7,6 +7,9 @@
     <swiper-slide>
       <slot></slot>
     </swiper-slide>
+    <div class="mine-scroll-pull-up" v-if="pullUp">
+      <me-loading :text="pullUpText" inline ref="pullUpLoading"></me-loading>
+    </div>
     <div class="swiper-scrollbar" v-if="scrollbar" slot="scrollbar"></div>
   </swiper>
 </template>
@@ -48,13 +51,40 @@
       pullDown: {
         type: Boolean,
         default: false
+      },
+      pullUp: {
+        type: Boolean,
+        default: false
       }
     },
     data() {
       return {
-        pulling: false,
-        pullDownText: PULL_DOWN_TEXT_INIT,
-        swiperOption: {
+
+      };
+    },
+    watch: {
+      data() {
+        this.update();
+      }
+    },
+    created() {
+      this.init();
+    },
+    mounted() {
+
+    },
+    methods: {
+      update() {
+        this.$refs.mySwiper && this.$refs.mySwiper.swiper.update();
+      },
+      scrollToTop(speed, runCallbacks) {
+        this.$refs.mySwiper && this.$refs.mySwiper.swiper.slideTo(0, speed, runCallbacks);
+      },
+      init() {
+        this.pulling = false;
+        this.pullDownText = PULL_DOWN_TEXT_INIT;
+        this.pullUpText = PULL_UP_TEXT_INIT;
+        this.swiperOption = {
           direction: 'vertical',
           slidesPerView: 'auto',
           freeMode: true,
@@ -65,29 +95,19 @@
           },
           on: {
             sliderMove: this.scroll,
-            touchEnd: this.touchEnd
+            touchEnd: this.touchEnd,
+            transitionEnd: this.scrollEnd
           }
-        }
-      };
-    },
-    watch: {
-      data() {
-        this.update();
-      }
-    },
-    mounted() {
-
-    },
-    methods: {
-      update() {
-        this.$refs.mySwiper && this.$refs.mySwiper.swiper.update();
+        };
       },
-
       scroll() {
+        const swiper = this.$refs.mySwiper.swiper;
+        this.$emit("scroll", swiper.translate, swiper);
+
         if (this.pulling) {
           return;
         }
-        const swiper = this.$refs.mySwiper.swiper;
+
         if (swiper.translate > 0 && this.pullDown) {
           if (swiper.translate > PULL_DOWN_HEIGHT) {
             this.$refs.pullDownLoading.setLoadingText(PULL_DOWN_TEXT_START);
@@ -95,6 +115,23 @@
             this.$refs.pullDownLoading.setLoadingText(PULL_DOWN_TEXT_INIT);
           }
         }
+
+        if (swiper.isEnd && this.pullUp) {
+          const isPullUp = Math.abs(swiper.translate) + swiper.height - parseInt(swiper.$wrapperEl.css('height')) >
+            PULL_UP_HEIGHT;
+
+          if (isPullUp) {
+            this.$refs.pullUpLoading.setLoadingText(PULL_UP_TEXT_START);
+          } else {
+            this.$refs.pullUpLoading.setLoadingText(PULL_UP_TEXT_INIT);
+          }
+        }
+
+      },
+
+      scrollEnd() {
+        const swiper = this.$refs.mySwiper.swiper;
+        this.$emit('scroll-end', swiper.translate, swiper, this.pulling);
       },
 
       touchEnd() {
@@ -102,7 +139,9 @@
           return;
         }
         const swiper = this.$refs.mySwiper.swiper;
-        if (swiper.translate > 0 && this.pullDown) {
+        if (swiper.translate > PULL_DOWN_HEIGHT && this.pullDown) {
+          console.log("pulldown load");
+
           this.pulling = true;
           swiper.allowTouchMove = false;
           swiper.setTransition(swiper.params.speed);
@@ -110,6 +149,22 @@
           swiper.params.virtualTranslate = true;
           this.$refs.pullDownLoading.setLoadingText(PULL_DOWN_TEXT_ING);
           this.$emit('pull-down', this.pullDownEnd);
+        }
+
+        if (swiper.isEnd && this.pullUp) {
+          const isPullUp = Math.abs(swiper.translate) + swiper.height - parseInt(swiper.$wrapperEl.css('height')) >
+            PULL_UP_HEIGHT;
+          if (!isPullUp) {
+            return;
+          }
+          console.log("pullup load");
+          this.pulling = true;
+          swiper.allowTouchMove = false;
+          swiper.setTransition(swiper.params.speed);
+          swiper.setTranslate(swiper.height - parseInt(swiper.$wrapperEl.css('height')) - PULL_UP_HEIGHT);
+          swiper.params.virtualTranslate = true;
+          this.$refs.pullUpLoading.setLoadingText(PULL_UP_TEXT_ING);
+          this.$emit('pull-up', this.pullUpEnd);
         }
       },
 
@@ -121,6 +176,19 @@
         swiper.allowTouchMove = true;
         swiper.setTransition(swiper.params.speed);
         swiper.setTranslate(0);
+        setTimeout(() => {
+          this.$emit('pull-down-transition-end');
+        }, swiper.params.speed);
+      },
+
+      pullUpEnd() {
+        this.pulling = false;
+        const swiper = this.$refs.mySwiper.swiper;
+        this.$refs.pullUpLoading.setLoadingText(PULL_UP_TEXT_END);
+        swiper.params.virtualTranslate = false;
+        swiper.allowTouchMove = true;
+        // swiper.setTransition(swiper.params.speed);
+        // swiper.setTranslate(swiper.height - parseInt(swiper.$wrapperEl.css('height')));
       }
     }
   }
@@ -138,12 +206,21 @@
     height: auto;
   }
 
-  .mine-scroll-pull-down {
+  .mine-scroll-pull-down,
+  .mine-scroll-pull-up {
     position: absolute;
     left: 0;
-    bottom: 100%;
     width: 100%;
+  }
+
+  .mine-scroll-pull-down {
+    bottom: 100%;
     height: 80px;
+  }
+
+  .mine-scroll-pull-up {
+    top: 100%;
+    height: 30px;
   }
 
 </style>

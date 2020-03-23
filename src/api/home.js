@@ -26,7 +26,7 @@ export const getHomeSlider = () => {
     if (res.data.code === SUCCESS_CODE) {
       let sliders = res.data.slider;
       const slider = [sliders[Math.floor(Math.random() * sliders.length)]];
-      sliders = shuffle(sliders.filter(() => Math.random() > 0.9));
+      sliders = shuffle(sliders.filter(() => Math.random() > 0.5));
       if (sliders.length === 0) {
         sliders = slider;
       }
