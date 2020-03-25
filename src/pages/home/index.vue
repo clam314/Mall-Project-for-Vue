@@ -98,9 +98,4 @@
     background-color: $bgc-theme;
   }
 
-  .g-backtop-container {
-    position: absolute;
-    right: 5px;
-  }
-
 </style>

@@ -1,7 +1,9 @@
 <template>
   <div id="app" class="g-container">
     <div class="g-view-container">
-      <router-view></router-view>
+      <keep-alive>
+        <router-view></router-view>
+      </keep-alive>
     </div>
     <div class="g-footer-container">
       <c-tabbar></c-tabbar>
@@ -10,12 +12,13 @@
 </template>
 
 <script>
-    import CTabbar from 'components/tabbar';
+  import CTabbar from 'components/tabbar';
 
-    export default {
-      name: 'App',
-      components: {
-        CTabbar
-      }
-    };
+  export default {
+    name: 'App',
+    components: {
+      CTabbar
+    }
+  };
+
 </script>
