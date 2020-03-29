@@ -1,30 +1,69 @@
 <template>
-  <div>
-    result
-  </div>
-  <!-- <div class="result">
-    <div class="loading-container">
-      <me-loading/>
+  <div class="result">
+    <div class="loading-container" v-show="loading">
+      <me-loading />
     </div>
-    <ul class="g-list">
-      <li class="class="g-list-item"">
-        <span class="g-list-text"></span>
+    <ul class="g-list" v-show="!loading && results.length">
+      <li class="g-list-item" v-for="(item,index) in results" :key="index" @click="$_selectItem(item[0])">
+        <span class="g-list-text">{{item[0]}}</span>
       </li>
     </ul>
-    <div class="no-result">没有结果</div>
-  </div> -->
+    <div class="no-result" v-show="!loading && !results.length">没有结果</div>
+  </div>
 </template>
 
 <script>
   import MeLoading from 'base/loading';
-  // import {getSearchResult} from 'api/search';
-  // import {searchMixin} from 'assets/js/mixins';
+  import {
+    getSearchResult
+  } from 'api/search';
+  import {
+    searchMixin
+  } from 'assets/js/mixins';
   export default {
     name: 'SearchResult',
+    mixins: [searchMixin],
     components: {
       MeLoading
+    },
+    props: {
+      query: {
+        type: String,
+        default: ""
+      }
+    },
+    data() {
+      return {
+        results: [],
+        loading: false
+      };
+    },
+    watch: {
+      query(query) {
+        this.getResults(query);
+      }
+    },
+    created() {
+      this.getResults(this.query);
+    },
+    methods: {
+      getResults(keyword) {
+        if (!keyword) {
+          return;
+        }
+        this.loading = true;
+        getSearchResult(keyword).then(data => {
+          if (data) {
+            this.results = data;
+            this.loading = false;
+          }
+
+        });
+
+      }
     }
   };
+
 </script>
 
 <style lang="scss" scoped>

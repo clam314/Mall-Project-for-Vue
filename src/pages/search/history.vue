@@ -1,30 +1,62 @@
 <template>
-  <div>
-    history
-  </div>
-  <!-- <div class="history">
+  <div class="history" v-if="historys.length">
     <h4 class="history-title">历史搜索</h4>
-    <ul class="g-list">
-      <li class="g-list-item">
-        <span class="g-list-text"></span>
-        <i class="iconfont icon-delete"></i>
+    <transition-group class="g-list" name="list" tag="ul">
+      <li class="g-list-item" v-for="item in historys" :key="item" @click="$_selectItem(item)">
+        <span class="g-list-text">{{item}}</span>
+        <i class="iconfont icon-delete" @click.stop="reomveItem(item)"></i>
       </li>
-    </ul>
-    <a href="javascript:;" class="history-btn"><i class="iconfont icon-clear"></i>清空历史搜索</a>
-  </div> -->
+    </transition-group>
+    <a href="javascript:;" class="history-btn" @click="showConfirm"><i class="iconfont icon-clear"></i>清空历史搜索</a>
+  </div>
 </template>
 
 <script>
-  // import storage from 'assets/js/storage';
-  // import {SEARCH_HISTORY_KEYWORD_KEY} from './config';
-  // import {searchMixin} from 'assets/js/mixins';
+  import storage from 'assets/js/storage';
+  import {
+    SEARCH_HISTORY_KEYWORD_KEY
+  } from './config';
+  import {
+    searchMixin
+  } from 'assets/js/mixins';
   export default {
-    name: 'SearchHistory'
+    name: 'SearchHistory',
+    mixins: [searchMixin],
+    data() {
+      return {
+        historys: []
+      }
+    },
+    created() {
+      this.getHeyWord();
+    },
+    methods: {
+      update() {
+        this.getHeyWord();
+      },
+      getHeyWord() {
+        this.historys = storage.get(SEARCH_HISTORY_KEYWORD_KEY, []);
+      },
+      reomveItem(keyword) {
+        this.historys = this.historys.filter(val => val !== keyword);
+        storage.set(SEARCH_HISTORY_KEYWORD_KEY, this.historys);
+        setTimeOut(() => {
+          this.$emit("reomve-item", keyword)
+        }, 100);
+      },
+      showConfirm() {
+        this.$emit("show-confirm");
+      },
+      clear() {
+        storage.remove(SEARCH_HISTORY_KEYWORD_KEY);
+      }
+    }
   };
+
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/scss/mixins";
+  @import "~assets/scss/mixins";
 
   .history {
     padding-bottom: 30px;
@@ -59,5 +91,18 @@
     border-bottom: 1px solid $border-color;
     margin-bottom: 20px;
   }
-  
+
+  .list {
+
+    &-enter-ative,
+    &-leave-active {
+      transition: height 0.1s;
+    }
+
+    &-enter,
+    &-leave-to {
+      height: 0;
+    }
+  }
+
 </style>
